@@ -243,13 +243,13 @@ export function createEffects({ clock, sprites, reduced }) {
     perfect(cell) {
       const s = Math.round(TEXT.perfect.size * cell);
       return sprites.text(`perfect:${s}`, [
-        { text: 'Perfect!', size: s, fill: TEXT.perfect.fill, stroke: TEXT.perfect.stroke, shadow: TEXT.perfect.shadow, strokeFrac: 0.1, glow: 'rgba(255,90,110,0.6)' },
+        { text: 'Purr-fect!', size: s, fill: TEXT.perfect.fill, stroke: TEXT.perfect.stroke, shadow: TEXT.perfect.shadow, strokeFrac: 0.1, glow: 'rgba(255,90,110,0.6)' },
       ]);
     },
     toast(cell) {
       const s = Math.round(TEXT.toast.size * cell);
       return sprites.text(`toast:${s}`, [
-        { text: 'New High Score!', size: s, fill: TEXT.toast.fill, stroke: TEXT.toast.stroke, glow: 'rgba(255,120,210,0.75)' },
+        { text: 'Meow! New high score!', size: s, fill: TEXT.toast.fill, stroke: TEXT.toast.stroke, glow: 'rgba(255,120,210,0.75)' },
       ]);
     },
     noSpace(cell) {

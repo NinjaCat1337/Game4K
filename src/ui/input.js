@@ -157,7 +157,7 @@ export function createInput(canvas, h) {
     returns = returns.filter((x) => x.slot !== slot);
     drag = {
       slot,
-      piece: { shapeId: piece.shapeId, color: piece.color },
+      piece: { shapeId: piece.shapeId, color: piece.color, gem: h.game().handGems[slot] },
       shape,
       pointerId: e.pointerId,
       touch: e.pointerType !== 'mouse' && e.pointerType !== 'pen',

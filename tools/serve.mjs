@@ -196,7 +196,7 @@ function listen(server, port, triesLeft) {
 async function main() {
   const { root, port: wanted } = parseArgs();
   if (!fs.existsSync(root)) {
-    console.error(`Папка не найдена: ${root}`);
+    console.error(`Directory not found: ${root}`);
     process.exitCode = 1;
     return;
   }
@@ -205,23 +205,22 @@ async function main() {
   try {
     port = await listen(server, wanted, MAX_TRIES);
   } catch (err) {
-    console.error(`Не удалось запустить сервер: ${err.message}`);
+    console.error(`Could not start server: ${err.message}`);
     process.exitCode = 1;
     return;
   }
   const lan = lanAddresses();
   console.log('');
-  console.log('Game4K — локальный сервер');
-  console.log(`  Папка:         ${root}`);
-  if (port !== wanted) console.log(`  (порт ${wanted} занят, взят ${port})`);
-  console.log(`  На этом ПК:    http://localhost:${port}/`);
-  for (const { name, address } of lan) console.log(`  В сети Wi‑Fi:  http://${address}:${port}/   (${name})`);
-  if (!lan.length) console.log('  В сети Wi‑Fi:  адрес не найден — подключите ПК к Wi‑Fi (проверьте ipconfig)');
+  console.log('Meow Blocks — local server');
+  console.log(`  Directory:    ${root}`);
+  if (port !== wanted) console.log(`  (port ${wanted} is busy, using ${port})`);
+  console.log(`  On this PC:   http://localhost:${port}/`);
+  for (const { name, address } of lan) console.log(`  On Wi-Fi:     http://${address}:${port}/   (${name})`);
+  if (!lan.length) console.log('  On Wi-Fi:     no address found; connect to Wi-Fi and check ipconfig');
   console.log('');
-  console.log('На iPhone, подключённом к той же сети Wi‑Fi, откройте в Safari адрес «В сети Wi‑Fi».');
-  console.log('По обычному http офлайн‑режима нет (service worker не работает) — это нормально;');
-  console.log('полная версия с офлайн‑режимом — на GitHub Pages (https).');
-  console.log('Остановить сервер: Ctrl+C');
+  console.log('On an iPhone connected to the same Wi-Fi, open the network address in Safari.');
+  console.log('Offline mode requires HTTPS or localhost. Use GitHub Pages for offline installation.');
+  console.log('Stop the server: Ctrl+C');
   console.log('');
 }
 

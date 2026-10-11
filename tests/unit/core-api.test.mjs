@@ -19,6 +19,7 @@ const API = {
   'scoring.js': ['placementPoints', 'lineBase', 'clearPoints', 'praiseFor'],
   'generator.js': ['effectiveWeights', 'fairnessProbability', 'dealHand'],
   'game.js': ['Game'],
+  'quests.js': ['QUEST_TYPES', 'createQuests', 'advanceQuests', 'restoreQuests', 'decorateHand'],
 };
 
 function stripComments(src) {
@@ -70,5 +71,5 @@ test('constants match the spec', () => {
   assert.equal(constants.COLOR_COUNT, 7);
   assert.equal(constants.COMBO_MISS_LIMIT, 3);
   assert.equal(constants.ALL_CLEAR_BONUS, 0);
-  assert.equal(constants.SAVE_VERSION, 1);
+  assert.equal(constants.SAVE_VERSION, 2);
 });

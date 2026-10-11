@@ -117,34 +117,108 @@ function poly(g, pts, fill) {
   g.fill();
 }
 
-// Beveled tile filling the whole cell: dark outline, four trapezoid bevels (≈14 %), inner face ≈70 %.
+// Soft rounded candy tile with a tiny cat smile, baked once per color and size.
 function renderBlock(hex, size, dpr) {
   const s = Math.max(3, Math.round(size * dpr));
   const c = makeCanvas(s, s);
   const g = c.getContext('2d');
   const face = hexToRgb(hex);
-  const o = Math.max(1, Math.round(dpr * 0.7));
-  const b = Math.max(2, Math.round(s * 0.14));
-  const a = o;
-  const z = s - o;
-  const i = a + b;
-  const j = z - b;
-  g.fillStyle = COLORS.blockOutline;
-  g.fillRect(0, 0, s, s);
-  g.fillStyle = mix(face, WHITE, 0.15); // left bevel color as the base: no seams between the quads
-  g.fillRect(a, a, z - a, z - a);
-  poly(g, [[z, a], [z, z], [j, j], [j, i]], mix(face, BLACK, 0.15));
-  poly(g, [[a, z], [z, z], [j, j], [i, j]], mix(face, BLACK, 0.35));
-  poly(g, [[a, a], [z, a], [j, i], [i, i]], mix(face, WHITE, 0.45));
-  const grad = g.createLinearGradient(0, i, 0, j);
-  grad.addColorStop(0, mix(face, WHITE, 0.08));
-  grad.addColorStop(1, mix(face, BLACK, 0.05));
+  const gap = Math.max(1, s * 0.055);
+  const rad = s * 0.19;
+  g.beginPath();
+  roundRectPath(g, gap, gap + s * 0.065, s - 2 * gap, s - 2 * gap - s * 0.065, rad);
+  g.fillStyle = mix(face, BLACK, 0.16);
+  g.fill();
+  const grad = g.createLinearGradient(0, gap, 0, s - gap);
+  grad.addColorStop(0, mix(face, WHITE, 0.26));
+  grad.addColorStop(1, hex);
+  g.beginPath();
+  roundRectPath(g, gap, gap, s - 2 * gap, s - 2 * gap - s * 0.07, rad);
   g.fillStyle = grad;
-  g.fillRect(i, i, j - i, j - i);
-  // a hair-thin light edge where the top bevel meets the face reads as a polished tile
-  g.fillStyle = mix(face, WHITE, 0.22);
-  g.fillRect(i, i, j - i, Math.max(1, Math.round(dpr * 0.5)));
+  g.fill();
+  g.strokeStyle = COLORS.blockOutline;
+  g.lineWidth = Math.max(0.5, dpr * 0.65);
+  g.stroke();
+  g.lineCap = 'round';
+  g.strokeStyle = 'rgba(255,255,255,.5)';
+  g.lineWidth = s * 0.065;
+  g.beginPath();
+  g.moveTo(s * 0.26, s * 0.2);
+  g.lineTo(s * 0.63, s * 0.2);
+  g.stroke();
+  g.fillStyle = 'rgba(25,25,56,.72)';
+  for (const x of [0.35, 0.65]) {
+    g.beginPath();
+    g.ellipse(s * x, s * 0.5, s * 0.026, s * 0.04, 0, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.strokeStyle = 'rgba(25,25,56,.65)';
+  g.lineWidth = s * 0.025;
+  g.beginPath();
+  g.moveTo(s * 0.44, s * 0.59);
+  g.quadraticCurveTo(s * 0.5, s * 0.65, s * 0.56, s * 0.59);
+  g.stroke();
   return c;
+}
+
+// Same outline as icons/cat-gem.svg; keep the quest symbol and canvas collectible consistent.
+const GEM_OUTLINE = 'M15 28 13 11Q13 8 16 10L27 18Q32 16 37 18L48 10Q51 8 51 11L49 28Q57 42 45 50Q32 58 19 50Q7 42 15 28Z';
+let gemPath = null;
+
+/** A faceted kitty gem. Shared by the board, tray, held pieces and return animation. */
+export function drawGem(g, x, y, size) {
+  if (!gemPath) gemPath = new Path2D(GEM_OUTLINE);
+  g.save();
+  g.translate(x, y);
+  g.scale(size / 64, size / 64);
+  const gradient = g.createLinearGradient(32, 9, 32, 55);
+  gradient.addColorStop(0, '#E9FFF8');
+  gradient.addColorStop(.5, '#9DF5DF');
+  gradient.addColorStop(1, '#51D8C5');
+  g.fillStyle = gradient;
+  g.fill(gemPath);
+  g.strokeStyle = '#17434A';
+  g.lineWidth = 2;
+  g.lineJoin = 'round';
+  g.stroke(gemPath);
+  poly(g, [[17, 16], [20, 28], [26, 21]], '#FAFFF6');
+  poly(g, [[47, 16], [44, 28], [38, 21]], '#FAFFF6');
+  g.beginPath();
+  g.moveTo(18, 32);
+  g.lineTo(32, 27);
+  g.lineTo(46, 32);
+  g.moveTo(32, 27);
+  g.lineTo(32, 53);
+  g.strokeStyle = 'rgba(136,184,175,.6)';
+  g.lineWidth = 1;
+  g.stroke();
+  g.beginPath();
+  g.moveTo(18, 32);
+  g.lineTo(26, 21);
+  g.lineTo(32, 27);
+  g.lineTo(44, 21);
+  g.lineTo(48, 32);
+  g.strokeStyle = 'rgba(246,255,248,.75)';
+  g.lineWidth = 2;
+  g.stroke();
+  g.fillStyle = '#17434A';
+  for (const eyeX of [24, 40]) {
+    g.beginPath();
+    g.ellipse(eyeX, 37, 1.8, 2.5, 0, 0, Math.PI * 2);
+    g.fill();
+  }
+  poly(g, [[29, 42], [32, 44], [35, 42]], '#17434A');
+  g.strokeStyle = '#17434A';
+  g.lineWidth = 1.4;
+  g.lineCap = 'round';
+  g.beginPath();
+  g.moveTo(32, 44);
+  g.lineTo(32, 46);
+  g.quadraticCurveTo(28, 50, 25, 46);
+  g.moveTo(32, 46);
+  g.quadraticCurveTo(36, 50, 39, 46);
+  g.stroke();
+  g.restore();
 }
 
 

@@ -1,4 +1,4 @@
-# Dependencies (only playwright-core for the e2e smoke test)
+# Dependencies (playwright-core for browser checks and icon generation)
 node_modules/
 
 # Logs and test output

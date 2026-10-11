@@ -1,112 +1,116 @@
-# Game4K
+# Game4K — Meow Blocks
 
-Головоломка с блоками на поле 8×8 по правилам классического режима Block Blast!
-Сделана как веб‑приложение (PWA) прежде всего для iPhone: ставится на экран «Домой», открывается
-без панелей Safari и после первого запуска работает без интернета.
+A neon block puzzle with a dark background, bright tiles, little cats, kitty gems, and random quests.
+The classic Block Blast! rules run on an 8×8 board. This installable web app (PWA) is designed
+for iPhone and also works on desktop and Android. Once loaded, it can run offline.
 
-**Играть:** https://ninjacat1337.github.io/Game4K/
+**Play:** https://ninjacat1337.github.io/Game4K/
 
-## Как играть
+## How to play
 
-- Внизу лоток с тремя фигурами. Перетаскивайте их пальцем на поле в любом порядке; поворачивать фигуры нельзя.
-- Новые три фигуры появляются, когда поставлены все три.
-- Заполненная строка или столбец исчезает (несколько линий — одновременно).
-- Очки: +1 за каждую клетку поставленной фигуры и бонус за линии — 10 за одну, 20 за две, 60 за три,
-  120 за четыре, 200 за пять, 300 за шесть, умноженный на (комбо + 1).
-- Комбо — серия ходов с очисткой линий. Она переживает два хода без очистки и обрывается на третьем.
-- «Perfect!» — каждая из трёх фигур лотка убрала хотя бы одну линию.
-- Игра заканчивается, когда ни одна из оставшихся фигур никуда не помещается. Рекорд хранится на устройстве.
+- Drag the three pieces from the tray onto the board in any order. Pieces cannot rotate.
+- A new tray appears after all three pieces have been placed.
+- Filled rows and columns clear together.
+- Each placed cell earns 1 point. Clearing 1–6 lines earns 10, 20, 60, 120, 200, or 300 points,
+  multiplied by the clearing streak plus 1.
+- The combo survives two moves without a clear and ends on the third.
+- “Purr-fect!” means every piece in the tray cleared at least one line.
+- The game ends when none of the remaining pieces fits. Your best score stays on your device.
 
-## Запуск на компьютере
+## Kitty quests and gems
 
-Нужен Node.js 22 или новее; устанавливать зависимости для игры не нужно.
+- Two random quests are always active: earn points, collect kitty gems, clear lines, or place a number of block cells.
+- Progress counts actions taken after the quest appears. Each completed quest earns a star and immediately
+  makes room for a new quest. Targets gradually increase as you complete quests.
+- Gems are little faceted cat heads inside blocks. Every new tray contains at least one gem.
+  Clear a row or column containing a gem to collect it. A gem at a row/column crossing counts once.
+- Stars count completed quests in the current game. Starting a new game resets quests, progress, and stars.
+- The board, gems, quest progress, and both random generator states are saved together.
+  Older saves keep their board and score when upgraded.
 
-```
+## Run locally
+
+Node.js 22 or newer is required. Playing the game needs no installed dependencies.
+
+```sh
 npm start
 ```
 
-Откройте http://localhost:8080/ (если порт 8080 занят, сервер возьмёт следующий свободный и напишет адрес).
+Open http://localhost:8080/. If that port is busy, the server prints the next available address.
 
-## Игра на iPhone по Wi‑Fi (для проверки до публикации)
+## Test on iPhone over Wi-Fi
 
-1. Компьютер и iPhone должны быть в одной сети Wi‑Fi (не гостевой, без VPN).
-2. Запустите `npm start` — сервер сам напечатает адрес «В сети Wi‑Fi», например `http://192.168.50.16:8080/`.
-   Адрес также можно узнать командой `ipconfig` (строка «IPv4 Address» / «IPv4-адрес» у адаптера Wi‑Fi).
-3. Откройте этот адрес в Safari на iPhone (полностью, с `http://` и портом).
+1. Connect your computer and iPhone to the same Wi-Fi network.
+2. Run `npm start` and find the network address printed by the server, such as `http://192.168.50.16:8080/`.
+   On Windows, `ipconfig` also lists the Wi-Fi adapter's IPv4 address.
+3. Open the full address, including `http://` and the port, in Safari on your iPhone.
 
-По обычному http офлайн‑режима нет: service worker работает только по https. Для проверки
-игры, раскладки и управления этого достаточно; офлайн‑режим проверяется на GitHub Pages.
+Ordinary network HTTP supports playing and testing the layout. Offline installation requires HTTPS;
+localhost also supports service workers for development.
 
-## Публикация обновлений
+## Publish updates
 
-```
+```sh
 npm run stamp
 git add -A
-git commit -m "Описание изменений"
+git commit -m "Describe the changes"
 git push
 ```
 
-`npm run stamp` пересчитывает список файлов и версию в `sw.js` — без этого установленное приложение
-не узнает об обновлении. Запускайте его перед каждым коммитом; он же предупредит о путях с заглавными
-буквами и о файлах, которые не попали бы в офлайн‑кэш. Через ~1 минуту после `git push` новая
-версия будет на https://ninjacat1337.github.io/Game4K/ (GitHub Pages кэширует файлы до 10 минут).
+Run `npm run stamp` before committing application changes. It updates the asset list and cache version
+in `sw.js` so installed apps can receive the update. It also checks path casing and missing offline assets.
+GitHub Pages deployment and browser caches can delay when the updated version becomes visible.
 
-## Установка на iPhone
+## Install on iPhone
 
-1. Откройте https://ninjacat1337.github.io/Game4K/ в Safari и дождитесь загрузки игры.
-2. Нажмите «Поделиться» (или ••• → «Поделиться»).
-3. Выберите «На экран «Домой»».
-4. Оставьте включённым «Открыть как веб‑приложение».
-5. Нажмите «Добавить».
+1. Open the game in Safari and let it finish loading.
+2. Tap **Share** and choose **Add to Home Screen**.
+3. Leave **Open as Web App** enabled when that option is available, then tap **Add**.
+4. Open the installed game while online once to prepare its offline cache.
 
-Первый раз откройте установленную игру при включённом интернете — после этого она работает и офлайн.
+Safari and the installed app may have separate storage. Updates are checked when the app opens;
+an **Update** button appears if a new version is ready during play. After changing the app icon or title,
+remove the old Home Screen shortcut and add it again to refresh the installed metadata.
+Sound follows supported device audio behavior; haptic support varies by device and browser.
+Both can be turned off in settings.
 
-## Полезно знать
+## Development
 
-- Прогресс и рекорд из вкладки Safari **не переносятся** в установленное приложение (у iOS это разные
-  хранилища). Играйте в установленной версии.
-- Обновления приходят при следующем запуске приложения; если игра уже открыта, появится кнопка «Update».
-- После смены иконки или названия удалите иконку с экрана «Домой» и добавьте заново — iOS запоминает их при установке.
-- Звук подчиняется переключателю «Звонок/Бесшумно»: в бесшумном режиме игра молчит и не прерывает вашу музыку.
-- Вибрация на iPhone работает только на части версий iOS (примерно 17.4–26.4), на Android — через вибромотор.
-  Звук и вибрацию можно выключить в настройках (шестерёнка).
-
-## Для разработчика
-
-| Команда | Что делает |
+| Command | Purpose |
 |---|---|
-| `npm start` | локальный сервер (`tools/serve.mjs`, порт 8080, без кэша, регистр букв в путях учитывается как на GitHub Pages) |
-| `npm test` | модульные тесты логики (`tests/unit`) |
-| `npm run test:e2e` | проверка в Chrome (`tests/e2e/smoke.mjs`); один раз нужен `npm install` (ставит playwright-core) и установленный Google Chrome |
-| `npm run icons` | заново рисует иконки в `icons/` (`tools/make-icons.mjs`) |
-| `npm run stamp` | обновляет список файлов и версию кэша в `sw.js` (`tools/stamp-sw.mjs`, `--check` — только проверка) |
+| `npm start` | Local server, default port 8080, revalidated assets, case-sensitive path checks |
+| `npm test` | Unit tests for game logic, quests, and save validation |
+| `npm run test:e2e` | Browser checks for touch input, quests, saves, six screen sizes, and offline mode; starts its own server and writes screenshots to `tests/e2e/out/` |
+| `npm run icons` | Generates PNG icons from the original cat-and-block artwork in `icons/icon.svg` |
+| `npm run stamp` | Updates the service worker's asset list and cache version |
+| `node tools/stamp-sw.mjs --check` | Checks that the service worker cache stamp is current |
 
-Параметры адреса для отладки:
+Browser checks and icon generation require `npm install` plus installed Chrome, Chromium, or Edge.
+Set `CHROME_PATH` to override browser detection. Set `GAME4K_URL` to run browser checks against an existing server.
 
-- `?seed=123` — новая игра с заданным зерном (сохранение игнорируется);
-- `?nosave=1` — ничего не читать и не записывать в хранилище;
-- `?debug=1` — отладочный объект `window.__game4k` и вывод ошибок на экран;
-- `?safe=59,0,34,0` — эмуляция безопасных зон экрана (сверху, справа, снизу, слева, в CSS‑пикселях).
+Debug URL parameters:
 
-Структура:
+- `?seed=123`: start a deterministic game, ignoring any saved game.
+- `?nosave=1`: disable storage reads and writes.
+- `?debug=1`: expose `window.__game4k` and display errors on screen.
+- `?safe=59,0,34,0`: emulate top, right, bottom, and left safe-area insets in CSS pixels.
 
+```text
+index.html, css/             Page shell and styles
+src/main.js                  Bootstrap
+src/core/                    Pure game and quest logic, tested in Node
+src/ui/                      Canvas rendering, input, effects, quest cards, overlays
+src/platform/                Storage, Web Audio, haptics, PWA, device behavior
+sw.js, manifest.webmanifest  Offline cache and application metadata
+fonts/, icons/               Self-hosted Nunito, cat artwork, app icons
+tools/                       Local server, icon generation, cache stamping
+tests/                       Unit and browser tests
 ```
-index.html, css/             оболочка страницы и стили
-src/main.js                  точка входа
-src/core/                    логика игры (без DOM, тестируется в Node)
-src/ui/                      отрисовка на canvas, ввод, эффекты, оверлеи
-src/platform/                хранилище, звук (Web Audio), вибрация, PWA, особенности iOS
-sw.js, manifest.webmanifest  офлайн‑кэш и описание приложения
-fonts/, icons/               шрифт Nunito и иконки
-tools/                       сервер, генератор иконок, штамп версии
-tests/                       тесты
-```
 
-Пути в проекте только относительные (`./…`) и в нижнем регистре: GitHub Pages различает регистр букв,
-а Windows — нет.
+Keep application paths relative and lowercase. GitHub Pages distinguishes path casing even when Windows does not.
 
-## Лицензии и происхождение
+## Credits
 
-- Шрифт Nunito — SIL Open Font License 1.1 (`fonts/OFL.txt`), из пакета `@fontsource/nunito`.
-- Иконки, графика и звуки созданы процедурно в коде проекта; ассеты оригинальной игры не используются.
-- Неофициальный некоммерческий проект; к авторам Block Blast! отношения не имеет.
+- Nunito: SIL Open Font License 1.1 (`fonts/OFL.txt`), from `@fontsource/nunito`.
+- Icons, graphics, and sounds are original assets created in this project's code. No original game assets are used.
+- This is an unofficial, noncommercial project with no affiliation to the creators of Block Blast!

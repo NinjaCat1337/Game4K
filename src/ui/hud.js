@@ -92,6 +92,11 @@ export function createHud({ clock, gear }) {
       const t = clock.now;
       const { score, best } = L.hud;
       const dpr = L.dpr;
+      ctx.font = font(900, Math.min(17, L.quests.w * .047));
+      ctx.fillStyle = COLORS.label;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Meow Blocks', score.x, best.y);
 
       // badge: pops behind the score whenever points are added, glows, then fades
       const bt = t - st.badge;
@@ -127,7 +132,7 @@ export function createHud({ clock, gear }) {
       ctx.lineJoin = 'round';
       ctx.fillStyle = COLORS.scoreShadow;
       ctx.fillText(txt, 0, score.size * 0.075);
-      ctx.strokeStyle = 'rgba(36,60,156,0.5)';
+      ctx.strokeStyle = COLORS.scoreOutline;
       ctx.lineWidth = score.size * 0.07;
       ctx.strokeText(txt, 0, 0);
       ctx.fillStyle = COLORS.score;
@@ -149,7 +154,7 @@ export function createHud({ clock, gear }) {
       const key = `${best.y}:${best.size}`;
       if (key !== bestGradKey) {
         bestGrad = ctx.createLinearGradient(0, best.y - best.size * 0.4, 0, best.y + best.size * 0.4);
-        bestGrad.addColorStop(0, '#FFF27A');
+        bestGrad.addColorStop(0, '#FFF1BA');
         bestGrad.addColorStop(0.5, COLORS.best);
         bestGrad.addColorStop(1, COLORS.bestDeep);
         bestGradKey = key;

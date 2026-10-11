@@ -1,8 +1,8 @@
-// Every color, size and timing constant of the UI layer (classic navy skin). Times are in seconds,
+// Every color, size and timing constant of the neon cat skin. Times are in seconds,
 // sizes in CSS px or as fractions of the board cell / usable height.
 
 /** App version shown in the settings panel. */
-export const APP_VERSION = '1.0';
+export const APP_VERSION = '2.3';
 
 /** Display font stack; Nunito 800/900 is self-hosted (css/style.css). */
 export const FONT_FAMILY = "'Nunito', ui-rounded, 'Arial Rounded MT Bold', system-ui, sans-serif";
@@ -20,48 +20,55 @@ export function font(weight, px) {
 /** Block face colors by color id (index 0 = empty). */
 export const BLOCK_COLORS = Object.freeze([
   null,
-  '#E2483F', // 1 red
-  '#F26A1B', // 2 orange
-  '#F5BE06', // 3 yellow
-  '#2DBE3C', // 4 green
-  '#16BFEA', // 5 cyan
-  '#3A62EC', // 6 blue
-  '#8E4EE2', // 7 purple
+  '#F465B4', // 1 neon pink
+  '#FFAC72', // 2 peach
+  '#F1D567', // 3 honey
+  '#6FE2A8', // 4 mint
+  '#58D8EB', // 5 cyan
+  '#8195FF', // 6 periwinkle
+  '#B181F1', // 7 violet
 ]);
 
-/** Scene, HUD and effect colors of the classic skin. */
+/** Scene, HUD and effect colors of the neon skin. */
 export const COLORS = Object.freeze({
-  bgTop: '#3B4FA8',
-  bgBottom: '#4A64BE',
-  flash: '#2F7BE0',
-  flashBoard: '#2456C8',
-  frame: '#2A3E70',
-  frameRim: '#4A63A6',
-  frameShade: '#1F2F5A',
-  cell: '#1E2648',
-  grid: '#181E3E',
-  neon: '#59D8FF',
-  neonCore: '#DDF8FF',
-  ghostFill: 'rgba(255,255,255,0.28)',
-  ghostLine: 'rgba(255,255,255,0.82)',
-  blockOutline: 'rgba(0,0,0,0.35)',
-  trayShadow: 'rgba(12,18,60,0.42)',
-  liftShadow: 'rgba(8,12,44,0.38)',
-  slotOutline: 'rgba(190,215,255,0.34)',
+  bgTop: '#101124',
+  bgBottom: '#181126',
+  flash: '#302252',
+  flashBoard: '#50306F',
+  frame: '#1C1D38',
+  frameRim: '#63E9ED',
+  frameShade: '#101429',
+  cell: '#262942',
+  cellRim: '#3C4261',
+  grid: '#15172D',
+  neon: '#B198FF',
+  neonCore: '#F1DCFF',
+  ghostFill: 'rgba(99,233,237,0.22)',
+  ghostLine: '#8FF9F2',
+  blockOutline: 'rgba(240,233,255,0.6)',
+  trayShadow: 'rgba(0,0,0,0.45)',
+  liftShadow: 'rgba(0,0,0,0.6)',
+  slotOutline: 'rgba(177,152,255,0.7)',
   crownLight: '#FFE45C',
   crown: '#FCC00C',
   crownDark: '#E08E00',
   crownLine: '#8A4B00',
-  best: '#FCD800',
-  bestDeep: '#F5A800',
-  bestOutline: '#8A5200',
-  gear: '#B4D8F0',
-  score: '#FFFFFF',
-  scoreShadow: '#243C9C',
-  badgeLight: '#B8F6FF',
-  badge: '#3FD2FF',
-  badgeDeep: '#1590E0',
-  badgeGlow: 'rgba(80,220,255,0.9)',
+  best: '#FFE083',
+  bestDeep: '#F7B857',
+  bestOutline: '#181126',
+  gear: '#C1B1EF',
+  score: '#F4F0FF',
+  scoreShadow: '#634281',
+  scoreOutline: '#1C1735',
+  label: '#BAF7F5',
+  muted: '#BDB2D8',
+  trayFill: 'rgba(25,26,52,0.94)',
+  trayRim: '#554673',
+  paw: 'rgba(153,116,223,0.17)',
+  badgeLight: '#653E87',
+  badge: '#342151',
+  badgeDeep: '#211732',
+  badgeGlow: 'rgba(255,120,197,0.5)',
   bandDark: 'rgba(16,22,58,0.74)',
   bandLine: 'rgba(255,255,255,0.10)',
 });
@@ -72,18 +79,18 @@ export const COLORS = Object.freeze({
  */
 export const CSS_VARS = Object.freeze({
   '--gear': COLORS.gear,
-  '--best-top': '#5418A8',
-  '--best-bottom': '#8454D8',
-  '--best-title': '#FCB400',
+  '--best-top': '#21172E',
+  '--best-bottom': '#111426',
+  '--best-title': '#FFE083',
   '--crown': '#FCCC0C',
-  '--over-top': '#1848B4',
-  '--over-bottom': '#1878CC',
-  '--over-title': '#39B5FF',
-  '--over-best': '#FCA818',
-  '--play-best': '#F0A818',
-  '--play-best-deep': '#E49C0C',
-  '--play-over': '#30B418',
-  '--play-over-deep': '#189C00',
+  '--over-top': '#101124',
+  '--over-bottom': '#21142F',
+  '--over-title': '#FF9CD4',
+  '--over-best': '#FFE083',
+  '--play-best': '#5BDDE3',
+  '--play-best-deep': '#37B2C1',
+  '--play-over': '#EF68B8',
+  '--play-over-deep': '#C44996',
 });
 
 /** Bubbly text styles: fill gradient stops (top → bottom), outline, shadow; sizes are × board cell. */

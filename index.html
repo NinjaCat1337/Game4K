@@ -3,25 +3,47 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-<title>Game4K</title>
+<title>Meow Blocks · Game4K</title>
+<meta name="description" content="A neon cat block puzzle. Place glowing blocks, collect kitty gems, and complete random quests.">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#3B4FA8">
+<meta name="theme-color" content="#101124">
 <link rel="manifest" href="./manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Game4K">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meow Blocks">
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
 <link rel="preload" href="./fonts/nunito-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
-<style>html,body{margin:0;height:100%;background:#3B4FA8}</style>
+<style>html,body{margin:0;height:100%;background:#101124}</style>
 <link rel="stylesheet" href="./css/style.css">
 <script type="module" src="./src/main.js"></script>
 </head>
 <body>
 <div id="app">
-  <canvas id="game" role="img" aria-label="Game4K board"></canvas>
+  <canvas id="game" role="img" aria-label="Meow Blocks: an 8 by 8 board. Drag pieces from the tray to fill rows and columns."></canvas>
+
+  <section id="quest-panel" class="quest-panel" aria-label="Kitty quests">
+    <div class="quest-heading">
+      <img class="quest-cat" src="./icons/cat.svg" alt="" aria-hidden="true">
+      <div><span class="quest-title">Kitty quests</span><span class="quest-message" role="status" aria-live="polite">Little quests, happy paws</span></div>
+      <span class="quest-stars">★ 0</span>
+    </div>
+    <div class="quest-cards">
+      <div class="quest-card">
+        <span class="quest-icon" aria-hidden="true"></span>
+        <div class="quest-info"><span class="quest-name"></span><span class="quest-value"></span></div>
+        <div class="quest-progress" role="progressbar" aria-valuemin="0"><i></i></div>
+      </div>
+      <div class="quest-card">
+        <span class="quest-icon" aria-hidden="true"></span>
+        <div class="quest-info"><span class="quest-name"></span><span class="quest-value"></span></div>
+        <div class="quest-progress" role="progressbar" aria-valuemin="0"><i></i></div>
+      </div>
+    </div>
+  </section>
 
   <button id="gear" class="gear" type="button" aria-label="Settings">
     <svg viewBox="-1 -1 26 26" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M9.52 3.98L9.81 1.22L14.19 1.22L14.48 3.98L15.92 4.57L18.08 2.83L21.17 5.92L19.43 8.08L20.02 9.52L22.78 9.81L22.78 14.19L20.02 14.48L19.43 15.92L21.17 18.08L18.08 21.17L15.92 19.43L14.48 20.02L14.19 22.78L9.81 22.78L9.52 20.02L8.08 19.43L5.92 21.17L2.83 18.08L4.57 15.92L3.98 14.48L1.22 14.19L1.22 9.81L3.98 9.52L4.57 8.08L2.83 5.92L5.92 2.83L8.08 4.57ZM15.50 12a3.5 3.5 0 1 0 -7.00 0a3.5 3.5 0 1 0 7.00 0Z"/></svg>
@@ -31,14 +53,15 @@
 
   <div id="install-hint" class="install-hint" role="note" hidden>
     <span class="install-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3l4 4h-3v7h-2V7H8l4-4zM5 10h3v2H7v7h10v-7h-1v-2h3v11H5V10z"/></svg></span>
-    <span class="install-text">Install: tap Share, then 'Add to Home Screen'</span>
-    <button class="install-close" type="button" aria-label="Dismiss">&times;</button>
+    <span class="install-text">Share → Add to Home Screen</span>
+    <button class="install-close" type="button" aria-label="Dismiss hint">&times;</button>
   </div>
 
   <section id="result" class="overlay result" aria-live="polite" hidden>
     <div class="result-rays" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     <div class="confetti" aria-hidden="true"></div>
     <div class="result-body">
+      <img class="result-cat" src="./icons/cat.svg" alt="A happy kitty">
       <div class="result-crown" aria-hidden="true">
         <svg viewBox="0 0 104 80" focusable="false">
           <defs>
@@ -54,13 +77,14 @@
           <ellipse cx="30" cy="50" rx="9" ry="4" transform="rotate(-28 30 50)" fill="#FFFFFF" opacity="0.6"/>
         </svg>
       </div>
-      <h1 class="result-title">Game Over</h1>
-      <div class="result-label">Score</div>
+      <h1 class="result-title">One more, meow?</h1>
+      <div class="result-label">Your score</div>
       <div class="result-score">0</div>
       <div class="result-best">
-        <div class="result-label">Best Score</div>
+        <div class="result-label">Best score</div>
         <div class="result-best-value">0</div>
       </div>
+      <div class="result-quests"></div>
       <button class="play" type="button" aria-label="Play again" disabled>
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.2c0-.9 1-1.5 1.8-1L19 10.9c.7.5.7 1.6 0 2.1l-9.2 6.8c-.8.5-1.8 0-1.8-1z"/></svg>
       </button>
@@ -70,7 +94,8 @@
   <section id="settings" class="overlay settings" hidden>
     <div class="settings-backdrop"></div>
     <div class="panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
-      <h2 id="settings-title">Settings</h2>
+      <img class="settings-cat" src="./icons/cat.svg" alt="" aria-hidden="true">
+      <h2 id="settings-title">Cozy settings</h2>
       <button class="row" type="button" role="switch" aria-checked="true" data-toggle="sound">
         <span class="row-label">Sound</span><span class="switch" aria-hidden="true"></span>
       </button>
@@ -78,16 +103,16 @@
         <span class="row-label">Vibration</span><span class="switch" aria-hidden="true"></span>
       </button>
       <div class="restart-zone">
-        <button class="btn btn-restart" type="button">Restart</button>
+        <button class="btn btn-restart" type="button">Start over</button>
         <div class="confirm" hidden>
-          <div class="confirm-q">Restart?</div>
+          <div class="confirm-q">Start a new game?</div>
           <div class="confirm-row">
             <button class="btn btn-yes" type="button">Restart</button>
             <button class="btn btn-cancel" type="button">Cancel</button>
           </div>
         </div>
       </div>
-      <button class="btn btn-resume" type="button">Resume</button>
+      <button class="btn btn-resume" type="button">Keep playing</button>
       <div class="version"></div>
     </div>
   </section>

@@ -16,5 +16,5 @@ export const COMBO_MISS_LIMIT = 3;
 /** Research found no confirmed all-clear bonus (celebration only). */
 export const ALL_CLEAR_BONUS = 0;
 
-/** Version tag written by Game#toJSON() and required by Game.fromJSON(). */
-export const SAVE_VERSION = 1;
+/** Current save format; Game.fromJSON also migrates classic v1 games. */
+export const SAVE_VERSION = 2;

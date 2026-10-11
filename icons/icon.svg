@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x2=".3" y2="1"><stop stop-color="#101124"/><stop offset="1" stop-color="#181126"/></linearGradient>
+    <linearGradient id="tile" x2="0" y2="1"><stop stop-color="#9DF5DF"/><stop offset="1" stop-color="#51D8C5"/></linearGradient>
+    <linearGradient id="fur" x2=".2" y2="1"><stop stop-color="#FFF0CE"/><stop offset="1" stop-color="#F4CDAF"/></linearGradient>
+    <linearGradient id="halo" x2="1" y2="1"><stop stop-color="#63E9ED"/><stop offset="1" stop-color="#FF78C5"/></linearGradient>
+    <filter id="neonGlow" x="-25%" y="-25%" width="150%" height="150%"><feDropShadow dx="0" dy="0" stdDeviation="7" flood-color="#63E9ED" flood-opacity=".28"/></filter>
+    <filter id="tileGlow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="0" stdDeviation="9" flood-color="#63E9ED" flood-opacity=".35"/></filter>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="254" r="185" fill="#24203C"/>
+  <circle cx="256" cy="254" r="185" fill="none" stroke="url(#halo)" stroke-width="3" opacity=".65" filter="url(#neonGlow)"/>
+  <g fill="#B198FF" opacity=".85">
+    <ellipse cx="79" cy="291" rx="14" ry="12" transform="rotate(-25 79 291)"/>
+    <circle cx="61" cy="272" r="6"/><circle cx="74" cy="265" r="6"/><circle cx="88" cy="265" r="6"/>
+    <path d="m410 116 6 16 16 6-16 6-6 16-6-16-16-6 16-6zM92 117l5 13 13 5-13 5-5 13-5-13-13-5 13-5z"/>
+  </g>
+  <ellipse cx="256" cy="403" rx="128" ry="17" fill="#63E9ED" opacity=".09"/>
+  <path d="m139 219-16-107q-1-12 10-6l76 52h94l76-52q11-6 10 6l-16 107" fill="#F4D4AF" stroke="#49334B" stroke-width="9" stroke-linejoin="round" filter="url(#neonGlow)"/>
+  <path d="m144 131 10 65 43-24zm224 0-10 65-43-24z" fill="#FF98CD"/>
+  <ellipse cx="256" cy="243" rx="137" ry="108" fill="url(#fur)" stroke="#49334B" stroke-width="9"/>
+  <path d="m219 141 9 25m28-31v29m37-23-9 25" stroke="#D9A18B" stroke-width="13" stroke-linecap="round"/>
+  <ellipse cx="183" cy="269" rx="23" ry="13" fill="#FF78C5" opacity=".6"/>
+  <ellipse cx="329" cy="269" rx="23" ry="13" fill="#FF78C5" opacity=".6"/>
+  <path d="M182 236q18-22 36 0m76 0q18-22 36 0" fill="none" stroke="#49334B" stroke-width="11" stroke-linecap="round"/>
+  <path d="m242 255 14 12 14-12" fill="#CD619A" stroke="#CD619A" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M256 267v8q-15 19-29 2m29-2q15 19 29 2" fill="none" stroke="#49334B" stroke-width="6" stroke-linecap="round"/>
+  <path d="M111 247l38 8m-38 19 38-4m252-23-38 8m38 19-38-4" fill="none" stroke="#B198FF" stroke-width="6" stroke-linecap="round"/>
+  <rect x="202" y="306" width="115" height="109" rx="24" fill="#226A71"/>
+  <rect x="202" y="296" width="115" height="109" rx="24" fill="url(#tile)" stroke="#17434A" stroke-width="7" filter="url(#tileGlow)"/>
+  <path d="M224 312h70" stroke="#E9FFF8" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+  <g transform="translate(227 323)">
+    <path d="M15 28 13 11Q13 8 16 10L27 18Q32 16 37 18L48 10Q51 8 51 11L49 28Q57 42 45 50Q32 58 19 50Q7 42 15 28Z" fill="#E9FFF8" stroke="#17434A" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M18 32 32 27 46 32M32 27v26" fill="none" stroke="#9DF5DF" stroke-width="2"/>
+    <ellipse cx="24" cy="37" rx="2" ry="2.5" fill="#17434A"/>
+    <ellipse cx="40" cy="37" rx="2" ry="2.5" fill="#17434A"/>
+    <path d="m29 42 3 2 3-2" fill="#17434A"/>
+    <path d="M32 44v2q-4 4-7 0m7 0q4 4 7 0" fill="none" stroke="#17434A" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <ellipse cx="180" cy="331" rx="34" ry="26" fill="url(#fur)" stroke="#49334B" stroke-width="7" transform="rotate(-16 180 331)"/>
+  <ellipse cx="339" cy="331" rx="34" ry="26" fill="url(#fur)" stroke="#49334B" stroke-width="7" transform="rotate(16 339 331)"/>
+  <path d="m170 329 2 13m14-16 2 13m143-13-2 13m16-10-2 13" stroke="#C48A83" stroke-width="5" stroke-linecap="round"/>
+  <path d="m410 116 6 16 16 6-16 6-6 16-6-16-16-6 16-6z" fill="#63E9ED"/>
+  <path d="m92 117 5 13 13 5-13 5-5 13-5-13-13-5 13-5z" fill="#FFE083"/>
+</svg>

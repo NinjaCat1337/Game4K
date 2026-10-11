@@ -1,8 +1,8 @@
 // Composes one frame on the single full-screen canvas: background (+flash) → shaken scene (board frame,
 // neon, blocks with clear preview, board effects, ghost, tray, "No Space Left", shards, texts, held piece)
 // → HUD → confetti. Static parts (board frame + grid) are cached per layout; blocks are sprites.
-import { COLORS, TIMING } from './theme.js';
-import { roundRectPath, tint } from './sprites.js';
+import { COLORS, TIMING, font } from './theme.js';
+import { roundRectPath, tint, drawGem } from './sprites.js';
 import { trayPieceRect } from './layout.js';
 import { getShape } from '../core/shapes.js';
 
@@ -17,12 +17,13 @@ export function createRenderer(canvas, sprites) {
   const ctx = canvas.getContext('2d');
   let L = null;
   let bgGrad = null;
+  let backgroundLayer = null;
   let boardLayer = null;
   const recolor = new Uint8Array(N * N);
 
   function renderBoardLayer() {
     const b = L.board;
-    const m = 6;
+    const m = 16;
     const dpr = L.dpr;
     const c = document.createElement('canvas');
     c.width = Math.ceil((b.size + 2 * m) * dpr);
@@ -31,8 +32,8 @@ export function createRenderer(canvas, sprites) {
     g.scale(dpr, dpr);
     // soft drop shadow under the frame
     g.save();
-    g.shadowColor = 'rgba(10,16,50,0.35)';
-    g.shadowBlur = 6 * dpr;
+    g.shadowColor = 'rgba(139,93,246,0.5)';
+    g.shadowBlur = 12 * dpr;
     g.shadowOffsetY = 2 * dpr;
     g.beginPath();
     roundRectPath(g, m, m, b.size, b.size, b.radius);
@@ -42,23 +43,37 @@ export function createRenderer(canvas, sprites) {
     // lighter rim
     g.beginPath();
     roundRectPath(g, m + 0.75, m + 0.75, b.size - 1.5, b.size - 1.5, b.radius);
-    g.strokeStyle = COLORS.frameRim;
+    const rim = g.createLinearGradient(m, m, m + b.size, m + b.size);
+    rim.addColorStop(0, COLORS.frameRim);
+    rim.addColorStop(.5, '#898FE3');
+    rim.addColorStop(1, '#EA79C4');
+    g.strokeStyle = rim;
     g.lineWidth = 1.5;
     g.stroke();
     // empty cells over thin grid lines
     const ix = m + b.pad;
     const iy = m + b.pad;
+    g.save();
+    g.beginPath();
+    roundRectPath(g, m + 2, m + 2, b.size - 4, b.size - 4, b.radius - 2);
+    g.clip();
     g.fillStyle = COLORS.frameShade;
     g.fillRect(ix - 1, iy - 1, b.innerSize + 2, b.innerSize + 2);
     g.fillStyle = COLORS.grid;
     g.fillRect(ix, iy, b.innerSize, b.innerSize);
     g.fillStyle = COLORS.cell;
-    const gl = 0.5;
+    const gl = Math.max(1.5, b.cell * 0.065);
     for (let r = 0; r < N; r++) {
       for (let col = 0; col < N; col++) {
-        g.fillRect(ix + col * b.cell + gl, iy + r * b.cell + gl, b.cell - 2 * gl, b.cell - 2 * gl);
+        g.beginPath();
+        roundRectPath(g, ix + col * b.cell + gl, iy + r * b.cell + gl, b.cell - 2 * gl, b.cell - 2 * gl, b.cell * .16);
+        g.fill();
+        g.strokeStyle = COLORS.cellRim;
+        g.lineWidth = .75;
+        g.stroke();
       }
     }
+    g.restore();
     return { canvas: c, m };
   }
 
@@ -87,6 +102,26 @@ export function createRenderer(canvas, sprites) {
     const pc = sprites.piece(piece.shapeId, piece.color, cell, kind);
     const k = rect.w / (shape.w * cell);
     ctx.drawImage(pc.canvas, rect.x + pc.ox * k, rect.y + pc.oy * k, pc.w * k, pc.h * k);
+    if (piece.gem >= 0) {
+      const [r, c] = shape.cells[piece.gem];
+      drawGem(ctx, rect.x + c * cell * k, rect.y + r * cell * k, cell * k);
+    }
+  }
+
+  function paw(x, y, size, angle) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.fillStyle = COLORS.paw;
+    ctx.beginPath();
+    ctx.ellipse(0, size * .16, size * .24, size * .2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    for (const [dx, dy] of [[-.29, -.1], [-.12, -.3], [.12, -.3], [.29, -.1]]) {
+      ctx.beginPath();
+      ctx.ellipse(dx * size, dy * size, size * .09, size * .12, dx, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   return {
@@ -105,6 +140,34 @@ export function createRenderer(canvas, sprites) {
       bgGrad = ctx.createLinearGradient(0, 0, 0, L.height);
       bgGrad.addColorStop(0, COLORS.bgTop);
       bgGrad.addColorStop(1, COLORS.bgBottom);
+      if (backgroundLayer) {
+        backgroundLayer.width = 0;
+        backgroundLayer.height = 0;
+      }
+      // Cache ambient light and stars so the idle scene needs no continuous animation.
+      backgroundLayer = document.createElement('canvas');
+      backgroundLayer.width = W;
+      backgroundLayer.height = H;
+      const bg = backgroundLayer.getContext('2d');
+      bg.scale(L.dpr, L.dpr);
+      bg.fillStyle = bgGrad;
+      bg.fillRect(0, 0, L.width, L.height);
+      for (const [x, y, color] of [[.05, .25, 'rgba(67,185,208,.12)'], [.95, .7, 'rgba(190,70,184,.14)']]) {
+        const radius = Math.max(L.width * .45, L.height * .4);
+        const light = bg.createRadialGradient(L.width * x, L.height * y, 0, L.width * x, L.height * y, radius);
+        light.addColorStop(0, color);
+        light.addColorStop(1, 'rgba(0,0,0,0)');
+        bg.fillStyle = light;
+        bg.fillRect(0, 0, L.width, L.height);
+      }
+      for (let i = 0; i < 32; i++) {
+        const x = ((i * 73 + 19) % 997) / 997 * L.width;
+        const y = ((i * 137 + 31) % 991) / 991 * L.height;
+        bg.fillStyle = i % 3 ? 'rgba(164,197,239,.22)' : 'rgba(255,156,212,.28)';
+        bg.beginPath();
+        bg.arc(x, y, i % 3 ? .65 : 1.1, 0, Math.PI * 2);
+        bg.fill();
+      }
       if (boardLayer) {
         boardLayer.canvas.width = 0;
         boardLayer.canvas.height = 0;
@@ -127,8 +190,10 @@ export function createRenderer(canvas, sprites) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.globalAlpha = 1;
       ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, L.width, L.height);
+      ctx.drawImage(backgroundLayer, 0, 0, L.width, L.height);
+      paw(L.width * .08, L.height * .18, 65, -.4);
+      paw(L.width * .94, L.height * .69, 74, .35);
+      paw(L.width * .14, L.height * .92, 48, -.55);
       const flash = fx.flashLevel();
       if (flash > 0) {
         ctx.globalAlpha = flash * 0.92;
@@ -179,6 +244,7 @@ export function createRenderer(canvas, sprites) {
         if (!v || fx.hidden[i]) continue;
         const color = recolor[i] ? drag.piece.color : v;
         ctx.drawImage(sprites.block(color, cell), inner.x + (i % N) * cell, inner.y + Math.floor(i / N) * cell, cell, cell);
+        if (game.gems[i]) drawGem(ctx, inner.x + (i % N) * cell, inner.y + Math.floor(i / N) * cell, cell);
       }
       ctx.globalAlpha = 1;
       if (pv) {
@@ -217,6 +283,13 @@ export function createRenderer(canvas, sprites) {
       // tray (under "No Space Left" the pieces sit dimmed on the dark band)
       const returning = input.returning();
       const trayAlpha = fx.trayAlpha();
+      ctx.beginPath();
+      roundRectPath(ctx, L.tray.x, L.tray.y + 3, L.tray.w, L.tray.h - 6, 24);
+      ctx.fillStyle = COLORS.trayFill;
+      ctx.fill();
+      ctx.strokeStyle = COLORS.trayRim;
+      ctx.lineWidth = 1;
+      ctx.stroke();
       fx.drawNoSpace(ctx, L, 'band');
       for (let slot = 0; slot < 3; slot++) {
         if (drag && drag.slot === slot) {
@@ -237,10 +310,17 @@ export function createRenderer(canvas, sprites) {
         const cx = r.x + r.w / 2;
         const cy = r.y + r.h / 2;
         ctx.globalAlpha = trayAlpha;
-        drawPiece(piece, shape, { x: cx - (r.w * sc) / 2, y: cy - (r.h * sc) / 2, w: r.w * sc, h: r.h * sc }, 'tray');
+        drawPiece({ ...piece, gem: game.handGems[slot] }, shape, { x: cx - (r.w * sc) / 2, y: cy - (r.h * sc) / 2, w: r.w * sc, h: r.h * sc }, 'tray');
         ctx.globalAlpha = 1;
       }
       fx.drawNoSpace(ctx, L, 'text');
+      if (L.mode === 'portrait' && L.tray.h > 90) {
+        ctx.font = font(800, Math.min(12, cell * .3));
+        ctx.fillStyle = COLORS.muted;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Drag blocks · clear lines to collect kitty gems', L.tray.x + L.tray.w / 2, L.tray.y + L.tray.h - 15);
+      }
 
       fx.drawFx(ctx, base);
       fx.drawTexts(ctx, base);

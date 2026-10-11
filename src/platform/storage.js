@@ -4,6 +4,7 @@ import { isStandalone } from './device.js';
 
 /** localStorage keys used by the app. */
 export const KEYS = Object.freeze({
+  // Keep the original key so v1 games can be migrated by Game.fromJSON.
   save: 'game4k:save:v1',
   best: 'game4k:best:v1',
   settings: 'game4k:settings:v1',

@@ -35,7 +35,7 @@ function makeBoard(x, y, cell, pad) {
   return {
     x, y, size, cell, pad, innerSize,
     inner: { x: x + pad, y: y + pad },
-    radius: Math.max(3, Math.round(size * 0.022)),
+    radius: Math.max(10, Math.round(size * 0.055)),
   };
 }
 
@@ -64,25 +64,27 @@ function portrait(u, pad, height) {
   const H = u.h;
   const colW = Math.min(u.w, LAYOUT.maxColumn);
   const colX = u.x + (u.w - colW) / 2;
-  const stack = (c) => LAYOUT.boardTop * H + N * c + 2 * pad + (LAYOUT.trayGap + LAYOUT.trayH) * c;
-  let cell = Math.floor(Math.min(LAYOUT.boardFrac * colW, LAYOUT.boardMaxH * H) / N);
+  const header = clamp(H * 0.29, 190, 236);
+  const trayCells = 3.5;
+  const stack = (c) => header + N * c + 2 * pad + (LAYOUT.trayGap + trayCells) * c;
+  let cell = Math.floor(LAYOUT.boardFrac * colW / N);
   while (cell > 6 && stack(cell) > H) cell--;
   cell = Math.max(6, cell);
   const leftover = Math.max(0, H - stack(cell));
-  const add = leftover / 6;
+  const add = Math.min(24, leftover / 3);
 
-  const bestY = u.y + LAYOUT.bestY * H + add;
-  const scoreY = u.y + LAYOUT.scoreY * H + add;
-  const boardY = u.y + LAYOUT.boardTop * H + 2 * add;
+  const bestY = u.y + 24 + add;
+  const scoreY = u.y + header * 0.37 + add;
+  const boardY = u.y + header + add;
   const outer = N * cell + 2 * pad;
   const board = makeBoard(Math.round(colX + (colW - outer) / 2), Math.round(boardY), cell, pad);
 
   let scoreSize = Math.max(LAYOUT.scoreMin, Math.round(height * LAYOUT.scoreFrac));
-  scoreSize = Math.round(Math.min(scoreSize, (board.y - bestY) * 1.05, cell * 1.6));
+  scoreSize = Math.round(Math.min(scoreSize, header * 0.24, cell * 1.6));
   const { bestSize, gearSize } = hudSizes(scoreSize);
 
-  const trayY = Math.round(board.y + outer + LAYOUT.trayGap * cell + add);
-  const trayH = Math.round(LAYOUT.trayH * cell);
+  const trayY = Math.round(board.y + outer + LAYOUT.trayGap * cell);
+  const trayH = Math.round(trayCells * cell);
   // the HUD row hugs the board (slightly wider), never wider than the column
   const hudL = Math.max(colX, board.x - cell * 0.35);
   const hudR = Math.min(colX + colW, board.x + outer + cell * 0.35);
@@ -94,6 +96,10 @@ function portrait(u, pad, height) {
       gear: { x: Math.round(hudR - gearSize / 2 - 2), y: Math.round(bestY), size: gearSize },
     },
     board,
+    quests: {
+      x: board.x, y: Math.round(scoreY + scoreSize * 0.55 + 10), w: outer,
+      h: Math.round(board.y - scoreY - scoreSize * 0.55 - 22),
+    },
     tray: {
       x: colX, y: trayY, w: colW, h: trayH,
       cell: Math.max(4, Math.round(cell * LAYOUT.trayScale)),
@@ -121,7 +127,9 @@ function sideBySide(u, pad, height) {
   const { bestSize, gearSize } = hudSizes(scoreSize);
   const bestY = board.y + Math.max(bestSize, gearSize) * 0.6;
   const scoreY = bestY + bestSize * 0.7 + scoreSize * 0.8;
-  const trayY = Math.round(scoreY + scoreSize * 0.75);
+  const questY = Math.round(scoreY + scoreSize * 0.55 + 8);
+  const questH = Math.min(100, Math.max(76, H * 0.25));
+  const trayY = questY + questH + 8;
   const trayH = Math.max(40, Math.round(board.y + outer - trayY));
 
   const ideal = Math.round(cell * LAYOUT.trayScale);
@@ -136,6 +144,7 @@ function sideBySide(u, pad, height) {
       gear: { x: Math.round(rx + rightW - gearSize / 2 - 2), y: Math.round(bestY), size: gearSize },
     },
     board,
+    quests: { x: rx, y: questY, w: rightW, h: questH },
     tray: {
       x: rx, y: trayY, w: rightW, h: trayH,
       cell: Math.max(4, vertical ? colCell : rowCell),

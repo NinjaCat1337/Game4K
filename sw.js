@@ -4,23 +4,27 @@
 'use strict';
 
 // <precache>
-const VERSION = '1044c4b4a2';
+const VERSION = 'c7b1282fdb';
 const ASSETS = [
   './',
   './css/style.css',
   './fonts/nunito-latin-800-normal.woff2',
   './fonts/nunito-latin-900-normal.woff2',
   './icons/apple-touch-icon.png',
+  './icons/cat-gem.svg',
+  './icons/cat.svg',
   './icons/favicon-32.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
+  './icons/icon.svg',
   './index.html',
   './manifest.webmanifest',
   './src/core/board.js',
   './src/core/constants.js',
   './src/core/game.js',
   './src/core/generator.js',
+  './src/core/quests.js',
   './src/core/rng.js',
   './src/core/scoring.js',
   './src/core/shapes.js',
@@ -37,6 +41,7 @@ const ASSETS = [
   './src/ui/input.js',
   './src/ui/layout.js',
   './src/ui/overlays.js',
+  './src/ui/quests.js',
   './src/ui/renderer.js',
   './src/ui/sprites.js',
   './src/ui/theme.js',

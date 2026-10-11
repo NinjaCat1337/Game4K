@@ -172,6 +172,7 @@ test('MoveResult: every field for a row + column crossing clear', () => {
     '.......4',
   ]));
   g.setHand(['dot', 'o2', 'i3h'], [5, 2, 3]);
+  g.handGems = [0, -1, -1];
   const r = g.place(0, 3, 7);
   const col7 = (rr) => ({ r: rr, c: 7, color: 4 });
   assert.deepEqual(r, {
@@ -184,6 +185,8 @@ test('MoveResult: every field for a row + column crossing clear', () => {
     rows: [3],
     cols: [7],
     lines: 2,
+    gemsCollected: 1,
+    questsCompleted: [],
     cleared: [
       col7(0), col7(1), col7(2),
       { r: 3, c: 0, color: 1 }, { r: 3, c: 1, color: 2 }, { r: 3, c: 2, color: 3 }, { r: 3, c: 3, color: 4 },
@@ -410,11 +413,12 @@ test('game over is detected right after a placement', () => {
 
 test('game over is detected right after a deal (allowed after the first 10 hands only)', (t) => {
   const save = (rngState, handsDealt) => ({
-    v: SAVE_VERSION,
+    ...new Game({ seed: 1 }).toJSON(),
     seed: 1,
     rngState,
     board: dotsOnlyBoardWithExtraCell(),
     hand: [{ shapeId: 'dot', color: 3 }, null, null],
+    handGems: [-1, -1, -1],
     score: 60000,
     streak: 0,
     misses: 0,

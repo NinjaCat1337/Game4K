@@ -9,6 +9,7 @@ import {
 } from './board.js';
 import { placementPoints, clearPoints, praiseFor } from './scoring.js';
 import { dealHand } from './generator.js';
+import { createQuests, advanceQuests, restoreQuests, decorateHand } from './quests.js';
 
 /** @typedef {import('./shapes.js').Shape} Shape */
 /** @typedef {{ shapeId: string, color: number }} HandPiece */
@@ -39,6 +40,8 @@ import { dealHand } from './generator.js';
  * @property {number} scoreAfter
  * @property {HandPiece[] | null} newHand the tray dealt after this placement, if any
  * @property {boolean} over
+ * @property {number} gemsCollected jewels removed by this move
+ * @property {object[]} questsCompleted completed quests, before replacement
  */
 
 /**
@@ -55,6 +58,10 @@ import { dealHand } from './generator.js';
  * @property {number} handsDealt
  * @property {number} moves
  * @property {boolean} over
+ * @property {number} questRngState
+ * @property {number[]} gems 64 flags: a jewel can only occupy a filled cell
+ * @property {number[]} handGems shape.cells index, or -1 for no jewel
+ * @property {object} quests active quests and completed count for this run
  */
 
 const isUint = (v) => Number.isSafeInteger(v) && v >= 0;
@@ -84,13 +91,17 @@ function assign(game, s) {
   game.seed = s.seed;
   game._rng = makeRng(s.seed);
   if (s.rngState !== undefined) game._rng.state = s.rngState;
+  game._questRng = makeRng(s.seed ^ 0xc47b10c);
+  game.quests = createQuests(game._questRng);
+  game.gems = new Uint8Array(CELLS);
+  game.handGems = new Array(HAND_SIZE).fill(-1);
 }
 
 /**
- * One Classic-mode game: 8×8 board, a tray of 3 pieces, score and combo state.
+ * One game: classic 8×8 board, a tray of 3 pieces, score, combos, jewels and two random quests.
  * Readable state: board (Uint8Array(64), replaced on every change), hand (Array<HandPiece|null>,
  * length 3, replaced on every change), score, streak, misses, clearsThisHand, handsDealt, moves,
- * over, seed. All randomness comes from a seeded RNG that is saved with the game.
+ * over, seed, gems, handGems, quests. Both seeded RNG states are saved with the game.
  */
 export class Game {
   /**
@@ -104,11 +115,11 @@ export class Game {
   /**
    * Restores a game saved with toJSON(), validating everything.
    * @param {unknown} obj
-   * @returns {Game | null} null when obj is not a valid save of this version
+   * @returns {Game | null} null for invalid data; v1 saves are migrated to the current format
    */
   static fromJSON(obj) {
     try {
-      if (!isPlainObject(obj) || obj.v !== SAVE_VERSION) return null;
+      if (!isPlainObject(obj) || (obj.v !== SAVE_VERSION && obj.v !== 1)) return null;
       const {
         seed, rngState, board, hand, score, streak, misses, clearsThisHand, handsDealt, moves, over,
       } = obj;
@@ -142,6 +153,28 @@ export class Game {
       assign(game, {
         board: cells, hand: pieces, score, streak, misses, clearsThisHand, handsDealt, moves, seed, rngState,
       });
+      if (obj.v === SAVE_VERSION) {
+        if (!isUint32(obj.questRngState) || !Array.isArray(obj.gems) || obj.gems.length !== CELLS ||
+            !Array.isArray(obj.handGems) || obj.handGems.length !== HAND_SIZE) return null;
+        for (let i = 0; i < CELLS; i++) {
+          const gem = obj.gems[i];
+          if ((gem !== 0 && gem !== 1) || (gem && !cells[i])) return null;
+          game.gems[i] = gem;
+        }
+        for (let i = 0; i < HAND_SIZE; i++) {
+          const gem = obj.handGems[i];
+          if (!Number.isInteger(gem) || gem < -1 ||
+              (pieces[i] ? gem >= getShape(pieces[i].shapeId).n : gem !== -1)) return null;
+        }
+        const quests = restoreQuests(obj.quests);
+        if (!quests) return null;
+        game.quests = quests;
+        game.handGems = obj.handGems.slice();
+        game._questRng.state = obj.questRngState;
+      } else {
+        // Preserve the old board, score and piece RNG; add quests and tray decorations.
+        game.handGems = decorateHand(game.hand, game._questRng, getShape);
+      }
       game.over = !game.hasAnyMove();
       return game;
     } catch (e) {
@@ -167,6 +200,10 @@ export class Game {
       handsDealt: this.handsDealt,
       moves: this.moves,
       over: this.over,
+      questRngState: this._questRng.state,
+      gems: Array.from(this.gems),
+      handGems: this.handGems.slice(),
+      quests: { completed: this.quests.completed, active: this.quests.active.map((q) => ({ ...q })) },
     };
   }
 
@@ -236,6 +273,18 @@ export class Game {
     const lines = rows.length + cols.length;
     const { board, cleared } = lines > 0 ? clearLines(withPiece, rows, cols) : { board: withPiece, cleared: [] };
     const allClear = lines > 0 && isEmpty(board);
+    const gems = this.gems.slice();
+    const jewelIndex = this.handGems[slot];
+    if (jewelIndex >= 0) {
+      const [r, c] = shape.cells[jewelIndex];
+      gems[(row + r) * 8 + col + c] = 1;
+    }
+    let gemsCollected = 0;
+    for (const { r, c } of cleared) {
+      gemsCollected += gems[r * 8 + c];
+      gems[r * 8 + c] = 0;
+    }
+    this.gems = gems;
     const points = {
       place: placementPoints(shape),
       clear: clearPoints(lines, streakBefore),
@@ -245,6 +294,10 @@ export class Game {
     points.total = points.place + points.clear + points.bonus;
     this.board = board;
     this.score += points.total;
+    const questResult = advanceQuests(this.quests, {
+      score: points.total, gems: gemsCollected, lines, blocks: shape.n,
+    }, this._questRng);
+    this.quests = questResult.state;
 
     let comboShown = 0;
     let comboBroken = false;
@@ -265,6 +318,7 @@ export class Game {
     const hand = this.hand.slice();
     hand[slot] = null;
     this.hand = hand;
+    this.handGems = this.handGems.map((g, i) => i === slot ? -1 : g);
     this.moves += 1;
 
     let perfect = false;
@@ -300,6 +354,8 @@ export class Game {
       scoreAfter: this.score,
       newHand,
       over: this.over,
+      gemsCollected,
+      questsCompleted: questResult.finished,
     };
   }
 
@@ -329,6 +385,7 @@ export class Game {
       next[i] = v;
     }
     this.board = next;
+    this.gems = new Uint8Array(CELLS);
     this.over = !this.hasAnyMove();
   }
 
@@ -363,6 +420,7 @@ export class Game {
       taken.add(p.color);
     }
     this.hand = hand;
+    this.handGems = decorateHand(hand, this._questRng, getShape);
     this.clearsThisHand = 0;
     this.over = !this.hasAnyMove();
   }
@@ -391,6 +449,7 @@ export class Game {
       misses: this.misses,
     });
     this.hand = hand.map(copyPiece);
+    this.handGems = decorateHand(this.hand, this._questRng, getShape);
     this.handsDealt += 1;
     this.clearsThisHand = 0;
   }

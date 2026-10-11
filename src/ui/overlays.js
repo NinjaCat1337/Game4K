@@ -25,6 +25,7 @@ export function createOverlays(o) {
     title: $('#result .result-title'),
     score: $('#result .result-score'),
     bestValue: $('#result .result-best-value'),
+    quests: $('#result .result-quests'),
     play: $('#result .play'),
     confetti: $('#result .confetti'),
     settings: $('#settings'),
@@ -136,7 +137,8 @@ export function createOverlays(o) {
       n.classList.toggle('is-best', r.isNewBest);
       n.classList.toggle('is-over', !r.isNewBest);
       n.classList.remove('anim');
-      el.title.textContent = r.isNewBest ? 'Best Score!' : 'Game Over';
+      el.title.textContent = r.isNewBest ? 'Purr! New high score!' : 'One more, meow?';
+      el.quests.textContent = `★ ${r.quests} · Quest stars`;
       el.score.textContent = '0';
       el.bestValue.textContent = String(r.best);
       el.play.classList.remove('show');

@@ -13,6 +13,7 @@ import { createRenderer } from './renderer.js';
 import { createEffects } from './effects.js';
 import { createInput } from './input.js';
 import { createHud } from './hud.js';
+import { createQuestHud } from './quests.js';
 import { createOverlays } from './overlays.js';
 import { TIMING, APP_VERSION, CSS_VARS } from './theme.js';
 
@@ -63,6 +64,7 @@ export function createApp(opts) {
   const renderer = createRenderer(canvas, sprites);
   const fx = createEffects({ clock, sprites, reduced: () => !!(reducedMQ && reducedMQ.matches) });
   const hud = createHud({ clock, gear });
+  const questHud = createQuestHud(root);
   const audio = createAudio();
   const haptics = createHaptics();
   audio.muted = !settings.sound;
@@ -196,6 +198,7 @@ export function createApp(opts) {
     renderer.resize(layout);
     fx.setLayout(layout);
     hud.place(layout);
+    questHud.place(layout);
     overlays.placePill(layout);
     drawNow();
     wake();
@@ -222,6 +225,7 @@ export function createApp(opts) {
   function onDrop(slot, row, col, rect) {
     const res = game.place(slot, row, col);
     if (!res) return false;
+    questHud.update(game, res.questsCompleted);
     audio.unlock();
     if (res.lines >= 4 || res.allClear) haptics.impact('heavy');
     else if (res.lines > 0) haptics.impact('medium');
@@ -239,6 +243,7 @@ export function createApp(opts) {
     }
     if (res.perfect) fx.cue(t + TIMING.perfectDelay, () => audio.play('perfect'));
     else if (res.allClear) fx.cue(t + TIMING.textDelay, () => audio.play('perfect'));
+    else if (res.questsCompleted.length) fx.cue(t + TIMING.textDelay, () => audio.play('perfect'));
     hud.add(res.scoreAfter, res.points.total);
     if (res.scoreAfter > best) {
       best = res.scoreAfter;
@@ -270,7 +275,7 @@ export function createApp(opts) {
   function showResult() {
     phase = 'result';
     const isNewBest = game.score > bestAtStart && game.score > 0;
-    overlays.showResult({ score: game.score, best, isNewBest, height: layout ? layout.height : 800 });
+    overlays.showResult({ score: game.score, best, isNewBest, quests: game.quests.completed, height: layout ? layout.height : 800 });
     if (isNewBest) fx.cue(clock.now + 0.3, () => audio.play('newbest'));
     wake();
   }
@@ -291,6 +296,7 @@ export function createApp(opts) {
     bestAtStart = best;
     toastDone = false;
     hud.reset(0, best);
+    questHud.reset(game);
     fx.setCombo(false);
     fx.dealTray(clock.now + (wipe ? 0.3 : 0.18), () => audio.play('deal'));
     saveGame();
@@ -336,6 +342,7 @@ export function createApp(opts) {
   // ---------------------------------------------------------------- debug helpers
   function afterDebugChange() {
     input.refresh();
+    questHud.update(game);
     if (phase === 'play' && game.over) startGameOver();
     else saveGame();
     drawNow();
@@ -406,6 +413,7 @@ export function createApp(opts) {
       const showHint = isIOS() && !isStandalone() && !hints.installDismissed;
       overlays.setHint(showHint);
       hud.reset(game.score, bestAtStart);
+      questHud.reset(game);
       fx.setCombo(game.streak >= 2);
       relayout(measure());
       onViewportChange(root, (m) => relayout(m));
@@ -487,6 +495,9 @@ export function createApp(opts) {
         over: game.over,
         hand: game.hand.map((p) => (p ? { shapeId: p.shapeId, color: p.color } : null)),
         board: Array.from(game.board),
+        gems: Array.from(game.gems),
+        handGems: game.handGems.slice(),
+        quests: game.toJSON().quests,
         dragging: !!d,
         target: d && d.target ? { ...d.target } : null,
         settingsOpen: overlays.settingsOpen,

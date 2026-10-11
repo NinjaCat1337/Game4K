@@ -5,7 +5,7 @@ import { Game } from '../../src/core/game.js';
 import { SAVE_VERSION } from '../../src/core/constants.js';
 
 const KEYS = ['v', 'seed', 'rngState', 'board', 'hand', 'score', 'streak', 'misses', 'clearsThisHand', 'handsDealt',
-  'moves', 'over'];
+  'moves', 'over', 'questRngState', 'gems', 'handGems', 'quests'];
 
 // Deterministic policy from the state alone: the move clearing the most lines, first in scan order.
 function chooseMove(g) {
@@ -116,7 +116,7 @@ test('fromJSON recomputes `over` from the board and hand', () => {
   const save = midHandSave();
   const board = new Array(64).fill(3);
   [0, 2, 4, 6, 1, 3, 5, 7].forEach((c, r) => { board[r * 8 + c] = 0; }); // only a 1×1 fits
-  const stuck = Game.fromJSON({ ...save, board, hand: [{ shapeId: 'o3', color: 1 }, null, null], clearsThisHand: 0, over: false });
+  const stuck = Game.fromJSON({ ...save, board, gems: new Array(64).fill(0), handGems: [-1, -1, -1], hand: [{ shapeId: 'o3', color: 1 }, null, null], clearsThisHand: 0, over: false });
   assert.ok(stuck);
   assert.equal(stuck.over, true);
   const alive = Game.fromJSON({ ...save, over: true });
@@ -139,9 +139,9 @@ test('fromJSON rejects non-objects', () => {
 
 test('fromJSON rejects a wrong or missing version', () => {
   const save = midHandSave();
-  for (const v of [0, 2, '1', 1.0001, null, undefined, true]) assert.equal(Game.fromJSON({ ...save, v }), null, String(v));
+  for (const v of [0, 3, '1', 1.0001, null, undefined, true]) assert.equal(Game.fromJSON({ ...save, v }), null, String(v));
   const { v, ...noVersion } = save;
-  assert.equal(v, 1);
+  assert.equal(v, SAVE_VERSION);
   assert.equal(Game.fromJSON(noVersion), null);
 });
 
@@ -180,7 +180,7 @@ test('fromJSON rejects bad hands (lengths, ids, colors, entries)', () => {
     const hand = save.hand.map((p) => (p ? { ...p } : null));
     const i = hand.findIndex((p) => p !== null);
     hand[i] = entry;
-    return { ...save, hand };
+    return { ...save, hand, handGems: [-1, -1, -1] };
   };
   for (const hand of [[], [piece], [piece, null], [piece, null, null, null], null, 'hand', { 0: piece, length: 3 }]) {
     assert.equal(Game.fromJSON({ ...save, hand }), null, JSON.stringify(hand));
