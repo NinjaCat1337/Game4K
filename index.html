@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Game4K</title>
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#3B4FA8">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Game4K">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="preload" href="./fonts/nunito-latin-900-normal.woff2" as="font" type="font/woff2" crossorigin>
+<style>html,body{margin:0;height:100%;background:#3B4FA8}</style>
+<link rel="stylesheet" href="./css/style.css">
+<script type="module" src="./src/main.js"></script>
+</head>
+<body>
+<div id="app">
+  <canvas id="game" role="img" aria-label="Game4K board"></canvas>
+
+  <button id="gear" class="gear" type="button" aria-label="Settings">
+    <svg viewBox="-1 -1 26 26" aria-hidden="true" focusable="false"><path fill-rule="evenodd" d="M9.52 3.98L9.81 1.22L14.19 1.22L14.48 3.98L15.92 4.57L18.08 2.83L21.17 5.92L19.43 8.08L20.02 9.52L22.78 9.81L22.78 14.19L20.02 14.48L19.43 15.92L21.17 18.08L18.08 21.17L15.92 19.43L14.48 20.02L14.19 22.78L9.81 22.78L9.52 20.02L8.08 19.43L5.92 21.17L2.83 18.08L4.57 15.92L3.98 14.48L1.22 14.19L1.22 9.81L3.98 9.52L4.57 8.08L2.83 5.92L5.92 2.83L8.08 4.57ZM15.50 12a3.5 3.5 0 1 0 -7.00 0a3.5 3.5 0 1 0 7.00 0Z"/></svg>
+  </button>
+
+  <button id="update-pill" class="pill" type="button" hidden>Update</button>
+
+  <div id="install-hint" class="install-hint" role="note" hidden>
+    <span class="install-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3l4 4h-3v7h-2V7H8l4-4zM5 10h3v2H7v7h10v-7h-1v-2h3v11H5V10z"/></svg></span>
+    <span class="install-text">Install: tap Share, then 'Add to Home Screen'</span>
+    <button class="install-close" type="button" aria-label="Dismiss">&times;</button>
+  </div>
+
+  <section id="result" class="overlay result" aria-live="polite" hidden>
+    <div class="result-rays" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="confetti" aria-hidden="true"></div>
+    <div class="result-body">
+      <div class="result-crown" aria-hidden="true">
+        <svg viewBox="0 0 104 80" focusable="false">
+          <defs>
+            <linearGradient id="crown-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FFE45C"/><stop offset="0.55" style="stop-color: var(--crown, #FCCC0C)"/><stop offset="1" stop-color="#E08E00"/>
+            </linearGradient>
+          </defs>
+          <path d="M14 60L8 25L32 42L52 13L72 42L96 25L90 60Z" fill="url(#crown-grad)" stroke="#8A4B00" stroke-width="5" stroke-linejoin="round"/>
+          <rect x="13" y="56" width="78" height="18" rx="6" fill="url(#crown-grad)" stroke="#8A4B00" stroke-width="5"/>
+          <circle cx="8" cy="24" r="7" fill="url(#crown-grad)" stroke="#8A4B00" stroke-width="4"/>
+          <circle cx="52" cy="11" r="7.5" fill="url(#crown-grad)" stroke="#8A4B00" stroke-width="4"/>
+          <circle cx="96" cy="24" r="7" fill="url(#crown-grad)" stroke="#8A4B00" stroke-width="4"/>
+          <ellipse cx="30" cy="50" rx="9" ry="4" transform="rotate(-28 30 50)" fill="#FFFFFF" opacity="0.6"/>
+        </svg>
+      </div>
+      <h1 class="result-title">Game Over</h1>
+      <div class="result-label">Score</div>
+      <div class="result-score">0</div>
+      <div class="result-best">
+        <div class="result-label">Best Score</div>
+        <div class="result-best-value">0</div>
+      </div>
+      <button class="play" type="button" aria-label="Play again" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 5.2c0-.9 1-1.5 1.8-1L19 10.9c.7.5.7 1.6 0 2.1l-9.2 6.8c-.8.5-1.8 0-1.8-1z"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <section id="settings" class="overlay settings" hidden>
+    <div class="settings-backdrop"></div>
+    <div class="panel" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <h2 id="settings-title">Settings</h2>
+      <button class="row" type="button" role="switch" aria-checked="true" data-toggle="sound">
+        <span class="row-label">Sound</span><span class="switch" aria-hidden="true"></span>
+      </button>
+      <button class="row" type="button" role="switch" aria-checked="true" data-toggle="vibration">
+        <span class="row-label">Vibration</span><span class="switch" aria-hidden="true"></span>
+      </button>
+      <div class="restart-zone">
+        <button class="btn btn-restart" type="button">Restart</button>
+        <div class="confirm" hidden>
+          <div class="confirm-q">Restart?</div>
+          <div class="confirm-row">
+            <button class="btn btn-yes" type="button">Restart</button>
+            <button class="btn btn-cancel" type="button">Cancel</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-resume" type="button">Resume</button>
+      <div class="version"></div>
+    </div>
+  </section>
+
+  <pre id="errors" class="errors scroll" hidden></pre>
+</div>
+</body>
+</html>

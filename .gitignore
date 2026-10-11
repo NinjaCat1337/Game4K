@@ -1,0 +1,15 @@
+# Dependencies (only playwright-core for the e2e smoke test)
+node_modules/
+
+# Logs and test output
+*.log
+npm-debug.log*
+tests/e2e/out/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local Claude Code settings
+.claude/settings.local.json
